@@ -506,6 +506,6 @@ int main()
                         fprintf(fptr,"\n 19K-1110 Maaz Asim %c    %s\n",num,asctime (timeinfo));
                         fclose(fptr); }}
                 alarm(lonitude,latitude);
-                sleep(1);
+                usleep(2500000000);
             }
     }}
