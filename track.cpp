@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <wiringPi.h>
 #include <wiringSerial.h>
+#include "alarm.h"
 
 int i;
 int main()
@@ -504,6 +505,7 @@ int main()
                         //19:
                         fprintf(fptr,"\n 19K-1110 Maaz Asim %c    %s\n",num,asctime (timeinfo));
                         fclose(fptr); }}
+                alarm(lonitude,latitude);
                 sleep(1);
             }
     }}
