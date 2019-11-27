@@ -20,11 +20,11 @@ int alarm(float lng, float lat){
 
 			//else if file read is not null file 
 			else(alm != NULL){
-			alm = fopen("/home/hp/Desktop/Shared/emergency log.txt", "a")
+			alm = fopen("/home/pi/public/.txt", "a")
 				}
 			fprintf(alm, "\n-------\nAt long: %f lat: %f\nThere was an emergency was detected\nAn audio file is being saved has been", lng, lat);
 			fclose(alm);
-			system("cd /home/hp/Desktop/Shared && arecord -d 10 -f cd -r 44100 -c2 -t wav | lame -S -x -h -b 128 - `date +%Y%m%d%H%M`.wav");
+			system("cd /home/pi/public/ && arecord -d 10 -f cd -r 44100 -c2 -t wav | lame -S -x -h -b 128 - `date +%Y%m%d%H%M`.wav");
 		}
     return 0;
 	}
