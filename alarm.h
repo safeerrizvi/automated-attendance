@@ -12,7 +12,7 @@ int alarm(float lng, float lat){
 		{
 			//if statement to check weather the file contents are not null run everything below USE r+:
 			if(alm == NULL){
-			alm = fopen("/home/hp/Desktop/Shared/emergency log.txt", "w+");
+			 alm = fopen("/home/hp/Desktop/Shared/emergency log.txt", "w+");
 				printf("error opening file");
 				return 1;
 				}
