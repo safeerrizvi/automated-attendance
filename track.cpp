@@ -87,20 +87,27 @@ int main()
             printf("GGA: %s",buff);
             is_GGA_received_completely = 0;
             
-            //token = strtok(buff,",");
-            
-            int j=0;
-            //while( j<10 ) {
-                
-              //  i=i+1;
-                //printf( " %s\n", token );
-                //if (j==1)
-                //{scanf("%d",&longitude);}
-                //if (j==3)
-                //{scanf("%d",&latitude);}
-                //token = strtok(NULL, buff);
-                //printf("longitude: %d ,latitude: %d",longitude,latitude);
-            //}
+    double longitude;
+    double latitude;
+    //char buf[] ="4.44141345/qwe/6.7";
+    char *pend;
+    int i = 0;
+    char *p = strtok (buff, ":,");
+    char *array[20];
+    
+    while (p != NULL)
+    {
+        array[i++] = p;
+        p = strtok (NULL, ":,");
+    }
+    
+        printf("%s\n", array[2]);
+    printf("%s\n", array[4]);
+    double f1 = strtod(array[2], &pend);
+    double f2 = strtod(array[4], &pend);
+    longitude=f1;
+    latitude=f2;
+    printf("%.15F",longitude);
         }
         int i=strcmp(buffer,"Thursday");
         if (i==0)
