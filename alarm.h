@@ -31,9 +31,8 @@ int alarm(float lng, float lat) {
           fprintf(alm,"\n-------\nAt long: %f lat: %f\nThere was an emergency was detected\nAn audio file has been saved", lng, lat);
       fclose(alm);
       system("cd /home/pi/Desktop/Shared/ && arecord -D plughw:1,0 -d 10 -f cd -r 44100 -t wav `date +%Y.%m.%d.%H:%M`.wav");
-      snprintf(buf,500,"chromium-browser http://www.google.com/maps/place/%s,%s", lng, lat);
+      snprintf(buf,sizeof(buf),"firefox-esr http://www.google.com/maps/place/%s,%s", lng, lat);
       system(buf);
-      system("chromium-browser http://www.google.com/maps/");
 
 		}
   return 0;

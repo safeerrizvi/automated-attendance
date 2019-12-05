@@ -1,6 +1,6 @@
 
 
-Void parse (buf)
+void parse (char buf[])
     char *pend;
     int i = 0;
     char *p = strtok (buf, ":,");
