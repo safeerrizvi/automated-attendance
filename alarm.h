@@ -7,7 +7,7 @@ int alarm(float lng, float lat) {
   FILE *alm;
   wiringPiSetup();
   const int INPUT_PIN = 5;
-  char buf[1000];
+  char buf1[100];
   pinMode(5, INPUT);
     // Detects High Voltage on GPIO5, creates a txt file with  invokes shell
     // command 'arecord'
@@ -31,9 +31,8 @@ int alarm(float lng, float lat) {
           fprintf(alm,"\n-------\nAt long: %f lat: %f\nThere was an emergency was detected\nAn audio file has been saved", lng, lat);
       fclose(alm);
       system("cd /home/pi/Desktop/Shared/ && arecord -D plughw:1,0 -d 10 -f cd -r 44100 -t wav `date +%Y.%m.%d.%H:%M`.wav");
-      snprintf(buf,sizeof(buf),"firefox-esr http://www.google.com/maps/place/%s,%s", lng, lat);
-      system(buf);
-
-		}
+      snprintf(buf1,sizeof(buf1),"chromium-browser http://www.google.com/maps/place/%f,%f", lng, lat);
+	system(buf1);
+    }
   return 0;
 }

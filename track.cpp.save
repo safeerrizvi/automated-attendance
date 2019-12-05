@@ -12,8 +12,8 @@
 int i;
 int main() {
   char num = 'A';
-  double latitude =67.132185;
-  double longitude =24.917702;
+  double latitude = ;
+  double longitude = 2;
 
   char buffer[32];
   struct tm *ts;
