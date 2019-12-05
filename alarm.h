@@ -1,47 +1,40 @@
+
+#include <stdio.h>
+#include <wiringPi.h>
+#include <stdlib.h>
 int alarm(float lng, float lat) {
 
   FILE *alm;
-  wiringPiSetupGPIO();
+  wiringPiSetup();
   const int INPUT_PIN = 5;
   char buf[1000];
-  pinMode(INPUT_PIN, INPUT);
-
-  while (true) {
+  pinMode(5, INPUT);
     // Detects High Voltage on GPIO5, creates a txt file with  invokes shell
     // command 'arecord'
-        if(digitalRead((INPUT_PIN) == HIGH)
-		{
+        if(digitalRead(5) == HIGH)
+      {
       // if statement to check weather the file contents are not null run
       // everything below USE r+:
-      if (alm == NULL) {
-        alm = fopen("/home/hp/Desktop/Shared/emergency log.txt", "w+");
-        printf("error opening file");
-        return 1;
-      }
-      fprintf(alm,
-              "At long: %f lat: %f\nThere was an emergency was detected\nAn "
-              "audio file is being saved has been",
-              lng, lat);
-      fclose(alm);
-      system("cd /home/hp/Desktop/Shared && arecord -d 10 -f cd -r 44100 -c2 "
-             "-t wav | lame -S -x -h -b 128 - `date +%Y%m%d%H%M`.wav");
+      
+        //alm = fopen("/home/pi/Desktop/Shared/emergency log.txt", "w+");
+        //if (alm == NULL) {
+        //printf("error opening file\n");
+        //return 1;
+        //}
+         // fprintf(alm, "At long: %f lat: %f\nThere was an emergency was detected\nAn audio file is being saved has been", lng, lat);
+          //fclose(alm);
+          //system("cd /home/pi/Desktop/Shared && arecord -D plughw:1,0 -d 10 | `date +%Y%m%d%H%M`.wav");
 
       // else if file read is not null file
-      else(alm != NULL){
-          alm = fopen("/home/hp/Desktop/Shared/emergency log.txt",
-                      "a")} fprintf(alm,
-                                    "\n-------\nAt long: %f lat: %f\nThere was "
-                                    "an emergency was detected\nAn audio file "
-                                    "is being saved has been",
-                                    lng, lat);
+      //if (alm != NULL){
+          alm = fopen("/home/pi/Desktop/Shared/emergency log.txt","a");
+          fprintf(alm,"\n-------\nAt long: %f lat: %f\nThere was an emergency was detected\nAn audio file has been saved", lng, lat);
       fclose(alm);
-      system("cd /home/hp/Desktop/Shared && arecord -d 10 -f cd -r 44100 -c2 "
-             "-t wav | lame -S -x -h -b 128 - `date +%Y%m%d%H%M`.wav");
-      snprintf(buf, sizeof(buf),
-               "chromium http://www.google.com/maps/place/%s,%s", lng, lat);
-      system(buf)
+      system("cd /home/pi/Desktop/Shared/ && arecord -D plughw:1,0 -d 10 -f cd -r 44100 -t wav `date +%Y.%m.%d.%H:%M`.wav");
+      snprintf(buf,500,"chromium-browser http://www.google.com/maps/place/%s,%s", lng, lat);
+      system(buf);
+      system("chromium-browser http://www.google.com/maps/");
 
 		}
-    return 0;
-  }
+  return 0;
 }

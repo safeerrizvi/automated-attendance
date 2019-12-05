@@ -1,4 +1,4 @@
-#include "alarm.h"
+
 #include <errno.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <wiringPi.h>
 #include <wiringSerial.h>
-
+#include "alarm.h"
 int i;
 int main() {
   char num = 'A';
@@ -77,12 +77,12 @@ int main() {
       }
     }
     if (is_GGA_received_completely == 1) {
-      printf("GGA: %s", buff);
+      //printf("GGA: %s", buff);
       is_GGA_received_completely = 0;
 
-      double longitude;
-      double latitude;
-      char *pend;
+      double longitude=2131.12;
+      double latitude=1231.12;
+      /*char *pend;
       int i = 0;
       char *p = strtok(buff, ":,");
       char *array[20];
@@ -95,9 +95,9 @@ int main() {
       printf("%s\n", array[2]);
       printf("%s\n", array[4]);
       double f1 = strtod(array[2], &pend);
-      double f2 = strtod(array[4], &pend);
-      longitude = f1;
-      latitude = f2;
+      double f2 = strtod(array[4], &pend);*/
+      //longitude = f1;
+      //latitude = f2;
       printf("%.15F", longitude);
     }
     int i = strcmp(buffer, "Thursday");
@@ -511,8 +511,9 @@ int main() {
           fclose(fptr);
         }
       }
-      alarm(lonitude, latitude);
-      usleep(2500000000);
     }
+      alarm(longitude, latitude);
+      //usleep(2500000000);
+    
   }
 }
