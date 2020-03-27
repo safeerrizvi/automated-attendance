@@ -9,11 +9,48 @@
 #include <wiringPi.h>
 #include <wiringSerial.h>
 #include "alarm.h"
+
+void parser(char buf[],double *lng,double *lat){
+  
+    char *pend;
+    int j = 0;
+    char *p = strtok (buf, ":, ");
+    char *array[100];
+    
+    while (p != NULL)
+    {
+        array[j++] = p;
+        p = strtok (NULL, ":, ");
+    }
+    
+    printf("%s\n", array[4]);
+    printf("%s\n", array[2]);
+    //double f1 = strtod(array[2], &pend);
+    //double f2 = strtod(array[4], &pend);
+    *lng=24.856911;
+    *lat=67.264200;
+    //printf("%Lf",f1);
+    //printf("\n%.15f\n%.15f", f1, f2);
+    //printf("\nlongitude: %.15f",*lng);
+    //printf("\nlatitude: %.15f",*lat);
+}
+
+
+void att(char num,struct tm *timeinfo, const char *a) {
+
+  char path[100] = "/home/pi/Public/";
+   strcat(path, a);
+  FILE *ftp;
+  ftp = fopen(path, "a");
+  fprintf(ftp, "\n 19K-1110 Maaz Asim %c    %s\n", num, asctime(timeinfo));
+}
+
 int i;
 int main() {
+  //Intializing variables
   char num = 'A';
-  double latitude =67.132185;
-  double longitude =24.917702;
+	double latitude = 67.264200;
+	double longitude = 24.856911;
 
   char buffer[32];
   struct tm *ts;
@@ -39,8 +76,11 @@ int main() {
   time_t t = time(NULL);
   struct tm tm = *localtime(&t);
   printf("now:%d:%d\n", tm.tm_hour, tm.tm_min);
-  if ((serial_port = serialOpen("/dev/ttyAMA0", 9600)) <
-      0) /* open serial port */
+  
+  
+  
+  //Retrieves GPS data from NEO6M serial ports (TX & RX)
+  if ((serial_port = serialOpen("/dev/ttyAMA0", 9600)) < 0) /* open serial port */
   {
     fprintf(stderr, "Unable to open serial device: %s\n", strerror(errno));
     return 1;
@@ -52,468 +92,261 @@ int main() {
     return 1;
   }
 
-  while (1) {
-    if (serialDataAvail(
-            serial_port)) /* check for any data available on serial port */
-    {
-      dat = serialGetchar(serial_port); /* receive character serially */
-      if (dat == '$') {
+  while(1){
+  
+  if (serialDataAvail(serial_port)){ /* check for any data available on serial port */
+        dat = serialGetchar(serial_port); /* receive character serially */
+  
+        if (dat == '$') {
         IsitGGAstring = 0;
         GGA_index = 0;
-      } else if (IsitGGAstring == 1) {
+        } 
+  
+        else if (IsitGGAstring == 1) {
         buff[GGA_index++] = dat;
         if (dat == '\r')
           is_GGA_received_completely = 1;
-      } else if (GGA_code[0] == 'G' && GGA_code[1] == 'G' &&
-                 GGA_code[2] == 'A') {
+        } 
+  
+        else if (GGA_code[0] == 'G' && GGA_code[1] == 'G' && GGA_code[2] == 'A'){
         IsitGGAstring = 1;
         GGA_code[0] = 0;
         GGA_code[0] = 0;
         GGA_code[0] = 0;
-      } else {
+        } 
+  
+        else{
         GGA_code[0] = GGA_code[1];
         GGA_code[1] = GGA_code[2];
         GGA_code[2] = dat;
-      }
+        }
     }
+    
     if (is_GGA_received_completely == 1) {
-      //printf("GGA: %s", buff);
+      printf("GGA: %s", buff);
       is_GGA_received_completely = 0;
-
-      double longitude=24.917702;
-      double latitude=67.132185;
-      /*char *pend;
-      int i = 0;
-      char *p = strtok(buff, ":,");
-      char *array[20];
-
-      while (p != NULL) {
-        array[i++] = p;
-        p = strtok(NULL, ":,");
-      }
-
-      printf("%s\n", array[2]);
-      printf("%s\n", array[4]);
-      double f1 = strtod(array[2], &pend);
-      double f2 = strtod(array[4], &pend);*/
-      //longitude = f1;
-      //latitude = f2;
-      printf("%.15F", longitude);
+      //callinf parsing function.
+      parser(buff,&longitude,&latitude);
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     int i = strcmp(buffer, "Thursday");
     if (i == 0)
 
       num = 'A';
-    if (longitude == 2 && latitude == 2 && tm.tm_hour == 8 && tm.tm_min >= 00 &&
-        tm.tm_min <= 15) {
+      
+    if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 8 && tm.tm_min >= 00 &&
+        tm.tm_min <= 15) 
       {
         num = 'P';
 
-        FILE *fptr;
-        fptr = fopen("/Users/maaz/Public/ICT.txt", "a");
-        if (fptr == NULL) {
-          printf("Error!");
-          exit(1);
-        }
+        att(num,timeinfo,"ICT.txt");
 
-        fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                asctime(timeinfo));
-        fclose(fptr);
       }
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 12 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
-          num = 'P';
-
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/ENG.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
-      }
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 12 &&
+          tm.tm_min >= 00 && tm.tm_min <= 15) 
+          {
+        num ='p';
+        att(num,timeinfo,"ENG.txt");
+         }
+      
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 13 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 13 &&
+          tm.tm_min >= 00 && tm.tm_min <= 15) 
         {
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/CALC.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
+          att(num,timeinfo,"CALC.txt");
           }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
-      }
+      
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 15 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 15 &&
           tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
+        
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/ENG.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
+          att(num,timeinfo,"ENG.txt");
           }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
-      }
+      
 
       i = strcmp(buffer, "Tuesday");
       if (i == 0)
 
         num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 9 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 9 &&
           tm.tm_min >= 00 && tm.tm_min <= 00) {
-        {
-          num = 'P';
-
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/PF.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+        
+        att(num,timeinfo,"PF.txt");
+           
       }
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 10 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 10 &&
           tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
+        
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/AP.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+          att(num,timeinfo,"AP.txt");
       }
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 12 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 12 &&
+          tm.tm_min >= 00 && tm.tm_min <= 15) 
         {
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/ENG.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
+          att(num,timeinfo,"ENG.txt");
           }
 
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+      num = 'A';
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 13 &&
+          tm.tm_min >= 00 && tm.tm_min <= 15) {
+    
+          num = 'P';
+
+          att(num,timeinfo,"PST.txt");
+          }
+      
+
+      num = 'A';
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 2 &&
+          tm.tm_min >= 00 && tm.tm_min <= 15) {
+        
+          num = 'P';
+
+        att(num,timeinfo,"AP.txt");
       }
-
-      num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 13 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
-          num = 'P';
-
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/PST.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
-      };
-
-      num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 2 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
-          num = 'P';
-
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/AP.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
-      };
       i = strcmp(buffer, "Wednesday");
       if (i == 0)
 
         num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 8 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 8 &&
           tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
+        
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/PF.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
-      };
-
-      num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 10 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
-          num = 'P';
-
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/CALC.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+        att(num,timeinfo,"PF.txt");
       }
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 13 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 10 &&
           tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
+        
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/PFL.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+          att(num,timeinfo,"CALC.txt");
       }
+
+      num = 'A';
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 13 &&
+          tm.tm_min >= 00 && tm.tm_min <= 15) {
+        
+          num = 'P';
+
+        att(num,timeinfo,"PFL.txt");
+        }
 
       i = strcmp(buffer, "Thursday");
       if (i == 0)
 
         num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 8 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 8 &&
           tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
+        
+          num = 'P';
+
+    att(num,timeinfo,"AP.txt");    }
+      
+
+      num = 'A';
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 9 &&
+          tm.tm_min >= 00 && tm.tm_min <= 15) {
+        
           num = 'P';
 
           FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/AP.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+          att(num,timeinfo,"PF.txt");
       }
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 9 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 10 &&
+          tm.tm_min >= 00 && tm.tm_min <= 15) 
         {
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/PF.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
-      }
+     att(num,timeinfo,"PF.txt"); }
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 10 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 11 &&
+          tm.tm_min >= 00 && tm.tm_min <= 15) 
         {
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/PF.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+          att(num,timeinfo,"ENG.txt");
       }
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 11 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 12 &&
           tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
+        
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/ENG.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+          att(num,timeinfo,"PST.txt");
       }
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 12 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
-          num = 'P';
-
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/PST.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
-      }
-
-      num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 15 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 15 &&
           tm.tm_min >= 00 && tm.tm_min <= 40) {
-        {
-          num = 'P';
-
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/ICTA.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+        
+        num='p';
+        att(num,timeinfo,"ICTA.txt");
       }
 
       i = strcmp(buffer, "Friday");
       if (i == 0)
 
         num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 9 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 9 &&
           tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
+        
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/PST.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
-      };
-
-      num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 10 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
-          num = 'P';
-
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/PF.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+          att(num,timeinfo,"PST.txt");
       }
 
       num = 'A';
-      if (longitude == 2 && latitude == 2 && tm.tm_hour == 14 &&
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 10 &&
           tm.tm_min >= 00 && tm.tm_min <= 15) {
-        {
+       num= 'P'; 
+        att(num,timeinfo,"PF.txt");
+        }
+      
+
+      num = 'A';
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 13 &&
+          tm.tm_min >= 00 && tm.tm_min <= 50) {
+        
           num = 'P';
 
-          FILE *fptr;
-          fptr = fopen("/Users/maaz/Public/ENGL.txt", "a");
-          if (fptr == NULL) {
-            printf("Error!");
-            exit(1);
-          }
-
-          fprintf(fptr, "\n 19K-1110 Maaz Asim %c    %s\n", num,
-                  asctime(timeinfo));
-          fclose(fptr);
-        }
+          att(num,timeinfo,"ENGL.txt");
       }
-    }
-      alarm(longitude, latitude);
-      //usleep(2500000000);
+    alarm(longitude, latitude);
+    //usleep(2500000000);
     
-  }
+  
+
+}
 }
