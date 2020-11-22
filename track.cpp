@@ -25,10 +25,10 @@ void parser(char buf[],double *lng,double *lat){
     
     printf("%s\n", array[4]);
     printf("%s\n", array[2]);
-    double f1 = strtod(array[2], &pend);
-    double f2 = strtod(array[4], &pend);
-    *lng=f1;
-    *lat=f2;
+    //double f1 = strtod(array[2], &pend);
+    //double f2 = strtod(array[4], &pend);
+    *lng=24.856911;
+    *lat=67.264200;
     //printf("%Lf",f1);
     //printf("\n%.15f\n%.15f", f1, f2);
     //printf("\nlongitude: %.15f",*lng);
@@ -49,8 +49,8 @@ int i;
 int main() {
   //Intializing variables
   char num = 'A';
-	double latitude = 0;
-	double longitude = 0;
+	double latitude = 67.264200;
+	double longitude = 24.856911;
 
   char buffer[32];
   struct tm *ts;
@@ -336,8 +336,8 @@ int main() {
       
 
       num = 'A';
-      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 14 &&
-          tm.tm_min >= 00 && tm.tm_min <= 15) {
+      if (longitude < 24.856910 && longitude> 24.856838 && latitude< 67.264519 && latitude> 67.264211 && tm.tm_hour == 13 &&
+          tm.tm_min >= 00 && tm.tm_min <= 50) {
         
           num = 'P';
 
