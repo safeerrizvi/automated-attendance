@@ -1,36 +1,34 @@
-int alarm(float lng, float lat){
+#include <stdio.h>
+#include <wiringPi.h>
+#include <stdlib.h>
+
+int alarm(double lng, double lat){
 
 	FILE *alm;
-	wiringPiSetupGPIO();
-	const int INPUT_PIN = 5;
-	char buf[1000];
-	pinMode(INPUT_PIN, INPUT);
-
-    while(true){
-	//Detects High Voltage on GPIO5, creates a txt file with  invokes shell command 'arecord'
-	if(digitalRead((INPUT_PIN) == HIGH)
-		{
-			//if statement to check weather the file contents are not null run everything below USE r+:
-			if(alm == NULL){
-			alm = fopen("/home/hp/Desktop/Shared/emergency log.txt", "w+");
-				printf("error opening file");
-				return 1;
-				}
-			fprintf(alm, "At long: %f lat: %f\nThere was an emergency was detected\nAn audio file is being saved has been", lng, lat);
-			fclose(alm);
-			system("cd /home/hp/Desktop/Shared && arecord -d 10 -f cd -r 44100 -c2 -t wav | lame -S -x -h -b 128 - `date +%Y%m%d%H%M`.wav");
-
-			//else if file read is not null file 
-			else(alm != NULL){
-			alm = fopen("/home/hp/Desktop/Shared/emergency log.txt", "a")
-				}
-			fprintf(alm, "\n-------\nAt long: %f lat: %f\nThere was an emergency was detected\nAn audio file is being saved has been", lng, lat);
-			fclose(alm);
-			system("cd /home/hp/Desktop/Shared && arecord -d 10 -f cd -r 44100 -c2 -t wav | lame -S -x -h -b 128 - `date +%Y%m%d%H%M`.wav");
-			snprintf(buf, sizeof(buf), "chromium http://www.google.com/maps/place/%s,%s",lng,lat);
-			system(buf)
-
-		}
-    return 0;
+  	wiringPiSetup();
+  	const int INPUT_PIN = 5;
+	char buf1[1000];
+  	pinMode(5, INPUT);
+    	
+	//detects high voltage from button input at 'GPIO 5'
+        if(digitalRead(5) == HIGH)
+	{
+	//creates a text and audio log of the emergency
+	alm = fopen("/home/pi/Desktop/Shared/emergency_log.txt","a");
+	if(alm == NULL){
+		printf("Err");
+		exit(0);
 	}
+	fprintf(alm,"\n-------\nK191110 POSTED AN EMERGENCY\nLONGITUDE:%f LATITUDE: %f\nAN AUDIO LOG HAS BEEN SAVED", lng, lat);
+	fclose(alm);
+
+	//changes working directory to the shared folder and invokes recording utility 'arecord'
+	system("cd /home/pi/Desktop/Shared/ && arecord -D plughw:1,0 -d 20 -f cd -r 44100 -t wav `date +%Y.%m.%d.%H:%M`.wav");
+
+	//parses the lng and lat into system which invokes a chromium with a Google Maps url to display the GPS location posted
+	snprintf(buf1,sizeof(buf1),"firefox http://www.google.com/maps/place/%f,%f", lng, lat);
+	system(buf1);
+  }
+
+return 0;
 }
